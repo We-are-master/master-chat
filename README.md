@@ -1,72 +1,76 @@
 # Master Chat
 
-Uma aplicação de chat moderna que se conecta ao webhook do n8n.
+A modern chat application that connects to the n8n webhook.
 
-## Funcionalidades
+## Features
 
-- Interface de chat moderna e responsiva
-- Integração com webhook do n8n
-- Indicador de digitação
-- Histórico de mensagens
-- Design limpo e intuitivo
+- Modern and responsive chat interface
+- n8n webhook integration
+- Typing indicator
+- Message history
+- Clean and intuitive design
 
-## Instalação
+## Installation
 
-1. Instale as dependências:
+1. Install dependencies:
+
 ```bash
 npm install
 ```
 
-2. Execute o projeto em modo de desenvolvimento:
+2. Run the project in development mode:
+
 ```bash
 npm run dev
 ```
 
-3. Abra o navegador em `http://localhost:3000`
+3. Open your browser at `http://localhost:3000`
 
-## Tecnologias Utilizadas
+## Technologies Used
 
 - React 18
 - TypeScript
 - Vite
 - Tailwind CSS
-- Lucide React (ícones)
+- Lucide React (icons)
 
-## Estrutura do Projeto
+## Project Structure
 
 ```
 src/
-├── components/     # Componentes React
-├── hooks/         # Hooks personalizados
-├── types/         # Definições TypeScript
-└── utils/         # Utilitários
+├── components/     # React components
+├── hooks/         # Custom hooks
+├── types/         # TypeScript definitions
+└── utils/         # Utilities
 ```
 
 ## Webhook
 
-A aplicação envia mensagens para:
+The application sends messages to:
 `https://n8n.wearemaster.com/webhook/59c837d9-f61d-4fb5-9fb0-f9531594c6cf`
 
-O formato da requisição é:
+The request format is:
+
 ```json
 {
-  "message": "Texto da mensagem",
+  "message": "Message text",
   "timestamp": "2024-01-01T00:00:00.000Z",
   "sessionId": "session_1704067200000_abc123def"
 }
 ```
 
-O `sessionId` é gerado automaticamente para cada sessão de chat e é mantido durante toda a conversa, permitindo que o n8n mantenha o contexto das mensagens anteriores.
+The `sessionId` is automatically generated for each chat session and is maintained throughout the conversation, allowing n8n to maintain context of previous messages.
 
-### Formato de Resposta Esperado do n8n:
+### Expected n8n Response Format
 
-O webhook do n8n deve retornar um JSON no seguinte formato:
+The n8n webhook should return a JSON in the following format:
+
 ```json
 [
   {
-    "output": "Resposta da IA aqui"
+    "output": "AI response here"
   }
 ]
 ```
 
-A aplicação extrai automaticamente o campo `output` do primeiro elemento do array para exibir como resposta do assistente.
+The application automatically extracts the `output` field from the first element of the array to display as the assistant's response.

@@ -74,7 +74,7 @@ export const useChat = () => {
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: `Erro ao enviar mensagem: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        content: `Error sending message: ${error instanceof Error ? error.message : 'Unknown error'}`,
         role: 'assistant',
         timestamp: new Date(),
       };
@@ -83,7 +83,7 @@ export const useChat = () => {
         ...prev,
         messages: [...prev.messages, errorMessage],
         isLoading: false,
-        error: error instanceof Error ? error.message : 'Erro desconhecido',
+        error: error instanceof Error ? error.message : 'Unknown error',
       }));
     }
   }, []);

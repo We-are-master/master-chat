@@ -82,7 +82,7 @@ export const Chat: React.FC = () => {
         <button
           onClick={clearChat}
           className="p-2 text-white hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-colors"
-          title="Limpar conversa"
+          title="Clear conversation"
         >
           <Trash2 size={20} />
         </button>
@@ -92,10 +92,10 @@ export const Chat: React.FC = () => {
       <div className="flex-1 overflow-y-auto px-4 py-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
-            <img src="/assets/master-logo.png" alt="Master" className="h-16 w-auto mb-4 opacity-50" />
-            <h2 className="text-xl font-medium mb-2 text-master-blue">Bem-vindo ao Master Chat</h2>
+            <img src="/assets/master-welcome.png" alt="Master" className="h-32 w-auto mb-6" />
+            <h2 className="text-xl font-medium mb-2 text-master-blue">Welcome to Master Chat</h2>
             <p className="text-center max-w-md">
-              Comece uma conversa enviando uma mensagem. Suas mensagens serão enviadas para o webhook do n8n.
+              Start a conversation by sending a message.
             </p>
           </div>
         ) : (
@@ -116,7 +116,7 @@ export const Chat: React.FC = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Digite sua mensagem..."
+            placeholder="Type your message..."
             className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-master-blue focus:border-transparent"
             disabled={isLoading}
           />
@@ -126,7 +126,7 @@ export const Chat: React.FC = () => {
             className="px-4 py-2 bg-master-blue text-white rounded-lg hover:bg-master-blue-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1"
           >
             <Send size={16} />
-            <span>Enviar</span>
+            <span>Send</span>
           </button>
         </form>
       </div>

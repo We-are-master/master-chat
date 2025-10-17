@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
-import { Message, ChatState, ApiResponse } from '../types';
+import { Message, ChatState } from '../types';
 
 const WEBHOOK_URL = 'https://n8n.wearemaster.com/webhook/59c837d9-f61d-4fb5-9fb0-f9531594c6cf';
 

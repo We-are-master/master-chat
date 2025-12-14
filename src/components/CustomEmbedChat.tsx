@@ -3,6 +3,7 @@ import { Send, Trash2, User, Image as ImageIcon, X } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
 import { useOpenAIConfig } from '../contexts/OpenAIContext';
 import { useEmbedParams } from '../hooks/useEmbedParams';
+import { MessageFormatter } from './MessageFormatter';
 import { Message } from '../types';
 
 const MessageBubble: React.FC<{ 
@@ -45,7 +46,9 @@ const MessageBubble: React.FC<{
             </div>
           )}
           {message.content && (
-            <p className="whitespace-pre-wrap">{message.content}</p>
+            <div className="text-sm">
+              <MessageFormatter content={message.content} />
+            </div>
           )}
           <p 
             className={`text-xs mt-1`}

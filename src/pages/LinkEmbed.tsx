@@ -1,5 +1,5 @@
 import React from 'react';
-import { LinkEmbed, LinkEmbedHTML } from '../components/LinkEmbed';
+import { LinkEmbed } from '../components/LinkEmbed';
 
 const LinkEmbedPage: React.FC = () => {
   return (

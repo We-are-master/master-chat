@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Trash2, User, MessageCircle } from 'lucide-react';
+import { Send, Trash2, User, Image as ImageIcon, X } from 'lucide-react';
 import { useChat } from '../hooks/useChat';
+import { useOpenAIConfig } from '../contexts/OpenAIContext';
 import { useEmbedParams } from '../hooks/useEmbedParams';
 import { Message } from '../types';
 
@@ -30,7 +31,22 @@ const MessageBubble: React.FC<{
             color: isUser ? 'white' : textColor
           }}
         >
-          <p className="whitespace-pre-wrap">{message.content}</p>
+          {/* Exibe imagens se houver */}
+          {message.images && message.images.length > 0 && (
+            <div className={`mb-2 flex flex-wrap gap-2 ${isUser ? 'justify-end' : 'justify-start'}`}>
+              {message.images.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`Imagem ${idx + 1}`}
+                  className="max-w-[150px] max-h-[150px] rounded-lg object-cover"
+                />
+              ))}
+            </div>
+          )}
+          {message.content && (
+            <p className="whitespace-pre-wrap">{message.content}</p>
+          )}
           <p 
             className={`text-xs mt-1`}
             style={{ color: isUser ? 'rgba(255,255,255,0.8)' : '#6b7280' }}
@@ -78,8 +94,16 @@ const TypingIndicator: React.FC<{
 
 export const CustomEmbedChat: React.FC = () => {
   const [input, setInput] = useState('');
-  const { messages, isLoading, sendMessage, clearChat } = useChat();
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const { getApiKey, getSystemPrompt, getModel } = useOpenAIConfig();
+  const { messages, isLoading, sendMessage, clearChat } = useChat({
+    apiKey: getApiKey(),
+    systemPrompt: getSystemPrompt(),
+    model: getModel(),
+  });
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const params = useEmbedParams();
 
   const scrollToBottom = () => {
@@ -90,11 +114,41 @@ export const CustomEmbedChat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+
+    const newImages = [...selectedImages, ...files];
+    setSelectedImages(newImages);
+
+    // Cria previews
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (result && typeof result === 'string') {
+          setImagePreviews(prev => [...prev, result]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() && !isLoading) {
-      sendMessage(input);
+    if ((input.trim() || selectedImages.length > 0) && !isLoading) {
+      sendMessage(input, selectedImages.length > 0 ? selectedImages : undefined);
       setInput('');
+      setSelectedImages([]);
+      setImagePreviews([]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -182,16 +236,16 @@ export const CustomEmbedChat: React.FC = () => {
               <MessageBubble 
                 key={message.id} 
                 message={message} 
-                accentColor={params.accentColor}
-                textColor={params.textColor}
-                backgroundColor={params.backgroundColor}
+                accentColor={params.accentColor || '#3b82f6'}
+                textColor={params.textColor || '#000000'}
+                backgroundColor={params.backgroundColor || '#ffffff'}
               />
             ))}
             {isLoading && (
               <TypingIndicator 
-                accentColor={params.accentColor}
-                backgroundColor={params.backgroundColor}
-                textColor={params.textColor}
+                accentColor={params.accentColor || '#3b82f6'}
+                backgroundColor={params.backgroundColor || '#ffffff'}
+                textColor={params.textColor || '#000000'}
               />
             )}
           </>
@@ -208,7 +262,49 @@ export const CustomEmbedChat: React.FC = () => {
             borderColor: `${params.accentColor}20`
           }}
         >
+          {/* Preview de imagens selecionadas */}
+          {imagePreviews.length > 0 && (
+            <div className="mb-2 flex flex-wrap gap-1">
+              {imagePreviews.map((preview, idx) => (
+                <div key={idx} className="relative">
+                  <img
+                    src={preview}
+                    alt={`Preview ${idx + 1}`}
+                    className="w-16 h-16 object-cover rounded border"
+                    style={{ borderColor: `${params.accentColor}40` }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(idx)}
+                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5 hover:bg-red-600"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="flex space-x-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageSelect}
+              className="hidden"
+              id="custom-embed-image-upload"
+            />
+            <label
+              htmlFor="custom-embed-image-upload"
+              className="px-2 py-2 border rounded-lg hover:opacity-80 cursor-pointer flex items-center justify-center"
+              style={{
+                borderColor: `${params.accentColor || '#3b82f6'}40`,
+                color: params.textColor || '#000000'
+              }}
+              title="Adicionar imagem"
+            >
+              <ImageIcon size={16} />
+            </label>
             <input
               type="text"
               value={input}
@@ -223,7 +319,7 @@ export const CustomEmbedChat: React.FC = () => {
             />
             <button
               type="submit"
-              disabled={!input.trim() || isLoading}
+              disabled={(!input.trim() && selectedImages.length === 0) || isLoading}
               className="px-3 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center space-x-1 text-sm"
               style={buttonStyle}
             >

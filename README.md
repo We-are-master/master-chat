@@ -1,11 +1,13 @@
 # Master Chat
 
-A modern chat application that connects to the n8n webhook.
+A modern chat application with OpenAI integration and image support.
 
 ## Features
 
 - Modern and responsive chat interface
-- n8n webhook integration
+- OpenAI API integration (GPT-4o with vision support)
+- Image upload and processing
+- System prompt configuration
 - Typing indicator
 - Message history
 - Clean and intuitive design
@@ -18,13 +20,48 @@ A modern chat application that connects to the n8n webhook.
 npm install
 ```
 
-2. Run the project in development mode:
+2. Configure environment variables:
+
+Create a `.env` file in the root directory:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and add your OpenAI API Key:
+
+```env
+VITE_OPENAI_API_KEY=your_openai_api_key_here
+VITE_OPENAI_SYSTEM_PROMPT=your_system_prompt_here  # Optional
+VITE_OPENAI_MODEL=gpt-4o  # Optional, defaults to gpt-4o
+```
+
+3. Run the project in development mode:
 
 ```bash
 npm run dev
 ```
 
-3. Open your browser at `http://localhost:3000`
+4. Open your browser at `http://localhost:3000`
+
+## Configuration
+
+### API Key
+
+The API Key can be configured in two ways:
+
+1. **Environment Variable (Recommended)**: Set `VITE_OPENAI_API_KEY` in the `.env` file
+2. **UI Configuration**: Click the settings button (gear icon) in the bottom right corner and enter the API Key
+
+The environment variable takes precedence, but you can override it through the UI settings.
+
+### System Prompt
+
+The system prompt defines the behavior of the AI assistant. You can:
+
+1. Set it via environment variable: `VITE_OPENAI_SYSTEM_PROMPT`
+2. Configure it through the UI settings
+3. Use the default Master Internal Sales & Pricing Agent prompt (pre-configured)
 
 ## Technologies Used
 
@@ -44,33 +81,27 @@ src/
 └── utils/         # Utilities
 ```
 
-## Webhook
+## OpenAI Integration
 
-The application sends messages to:
-`https://n8n.wearemaster.com/webhook/59c837d9-f61d-4fb5-9fb0-f9531594c6cf`
+The application uses the OpenAI Chat Completions API with support for:
 
-The request format is:
+- **Text messages**: Standard text conversations
+- **Image messages**: Upload and analyze images using GPT-4o vision capabilities
+- **System prompts**: Customize AI behavior
+- **Conversation history**: Maintains context across messages
 
-```json
-{
-  "message": "Message text",
-  "timestamp": "2024-01-01T00:00:00.000Z",
-  "sessionId": "session_1704067200000_abc123def"
-}
-```
+### API Configuration
 
-The `sessionId` is automatically generated for each chat session and is maintained throughout the conversation, allowing n8n to maintain context of previous messages.
+The application automatically uses:
+- API Key from `VITE_OPENAI_API_KEY` environment variable (if set)
+- Or API Key from UI settings (if configured)
+- System prompt from `VITE_OPENAI_SYSTEM_PROMPT` or UI settings
+- Model from `VITE_OPENAI_MODEL` or UI settings (defaults to `gpt-4o`)
 
-### Expected n8n Response Format
+### Image Support
 
-The n8n webhook should return a JSON in the following format:
-
-```json
-[
-  {
-    "output": "AI response here"
-  }
-]
-```
-
-The application automatically extracts the `output` field from the first element of the array to display as the assistant's response.
+Users can upload images along with their messages. Images are:
+- Converted to base64 format
+- Sent to OpenAI API for analysis
+- Displayed in the chat interface
+- Processed using GPT-4o vision capabilities
